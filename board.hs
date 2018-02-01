@@ -1,6 +1,17 @@
 module Board where
 
-import Piece
+import Piece(
+  Piece(Piece),
+  Color(White,Black),
+  PieceType(King,Queen,Rook,Bishop,Knight,Pawn),
+  oppositeColor,
+  isSliding,
+  color,
+  pieceType)
+
+import Move(Move,executeMove,move,slideMoves,stepMoves,pawnMoves)
+
+type Board = [Piece]
 
 king :: Color -> Board -> [Piece]
 king col board = filter (\p -> (pieceType p == King) && (color p == col)) board

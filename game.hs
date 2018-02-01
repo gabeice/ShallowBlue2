@@ -1,7 +1,8 @@
 module Game where
 
 import Player(Player(Player),PlayerType(Human),prompt,hasLost)
-import Piece(Color(White,Black),Move(Move))
+import Piece(Color(White,Black))
+import Move(Move(Move))
 
 type Game = [Move]
 

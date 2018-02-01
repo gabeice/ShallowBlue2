@@ -1,7 +1,8 @@
 module Player where
 
-import Piece(Board,Color,Move,move,targetPiece,toPos)
-import Board(startBoard,validMoves,isMated)
+import Piece(Color)
+import Move(Move,move,targetPiece,toPos)
+import Board(Board,startBoard,validMoves,isMated)
 import Display(Display,getMove)
 
 data Player = Player { playerType :: PlayerType, color :: Color }

@@ -25,7 +25,8 @@ nextTurn :: Game -> Game
 nextTurn game = getMove game : game
 
 getMove :: Game -> Move
-getMove game = prompt player moves
-    where moves = validMoves (color player) board
-          player = (Player Human (currentPlayer game))
+getMove game = prompt player board moves
+    where moves = validMoves color board
           board = currentBoard game
+          color = currentPlayer game
+          player = (Player Human color)

@@ -1,11 +1,18 @@
 module Display where
 
 import UI.HSCurses.Curses
-import Square(Board)
+import Square(Board,Move)
 
 data Display = Display Board
 
+board :: Display -> Board
+board (Display b) = b
+
 render :: Display -> IO ()
+
+printMessage :: Display -> String -> IO ()
+
+getMove :: Display -> [Move] -> IO (Move)
 
 darkBrown :: IO ()
 darkBrown = initColor (Color 3) (139, 69, 19)

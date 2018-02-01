@@ -3,10 +3,7 @@ module Display where
 import UI.HSCurses.Curses
 import Square(Board,Move)
 
-data Display = Display Board
-
-board :: Display -> Board
-board (Display b) = b
+data Display = Display { board :: Board }
 
 render :: Display -> IO ()
 

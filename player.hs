@@ -4,12 +4,9 @@ import Square(Board,Color,Move,move,targetPiece,toPos)
 import Board(startBoard,validMoves,isMated)
 import Display(Display,getMove)
 
-data Player = Player PlayerType Color
+data Player = Player { playerType :: PlayerType, color :: Color }
 data PlayerType = Human | AI
 type Log = [Move]
-
-color :: Player -> Color
-color (Player _ c) = c
 
 currentBoard :: Log -> Board
 currentBoard [] = startBoard

@@ -1,22 +1,13 @@
 module Square where
 
 type Board = [Square]
-data Square = Piece Color PieceType Pos deriving Eq
+data Square = Piece { color :: Color, pieceType :: PieceType, position :: Pos } deriving Eq
 data Color = Black | White deriving Eq
 data PieceType = King | Queen | Rook | Bishop | Knight | Pawn deriving Eq
 type Pos = (Int, Int)
 type Dir = (Int, Int)
 type Step = (Int, Int)
 data Move = Move Square Pos
-
-color :: Square -> Color
-color (Piece c _ _) = c
-
-pieceType :: Square -> PieceType
-pieceType (Piece _ t _) = t
-
-position :: Square -> Pos
-position (Piece _ _ p) = p
 
 symbol :: Square -> Char
 symbol (Piece _ King _) = '♚'

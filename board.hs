@@ -9,24 +9,24 @@ occupiedSquares :: Color -> Board -> [Square]
 occupiedSquares col board = filter (\p -> color p == col) board
 
 isChecked :: Color -> Board -> Bool
-isChecked col board = any (\m -> null (king col m)) (playerMoves (oppositeColor col) board)
+isChecked col board = any (\m -> null (king col m)) (allMoves (oppositeColor col) board)
 
 isMated :: Color -> Board -> Bool
-isMated col board = null (availableMoves col board)
+isMated col board = null (validMoves col board)
 
-availableMoves :: Color -> Board -> [Board]
-availableMoves col board = foldr (++) [] [validMoves piece board | piece <- occupiedSquares col board]
+class HasMoves a where
+    validMoves :: a -> Board -> [Board]
+    allMoves :: a -> Board -> [Board]
 
-validMoves :: Square -> Board -> [Board]
-validMoves piece board = filter (\m -> not (isChecked (color piece) board)) (allMoves piece board)
+instance HasMoves Color where
+    validMoves col board = foldr (++) [] [validMoves piece board | piece <- occupiedSquares col board]
+    allMoves col board = foldr (++) [] [allMoves piece board | piece <- occupiedSquares col board]
 
-playerMoves :: Color -> Board -> [Board]
-playerMoves col board = foldr (++) [] [allMoves piece board | piece <- occupiedSquares col board]
-
-allMoves :: Square -> Board -> [Board]
-allMoves piece board | isSliding (pieceType piece) = slideMoves piece board
-                     | (pieceType piece) /= Pawn = stepMoves piece board
-                     | otherwise = pawnMoves piece board
+instance HasMoves Square where
+    validMoves piece board = filter (\m -> not (isChecked (color piece) board)) (allMoves piece board)
+    allMoves piece board | isSliding (pieceType piece) = slideMoves piece board
+                         | (pieceType piece) /= Pawn = stepMoves piece board
+                         | otherwise = pawnMoves piece board
 
 startBoard :: Board
 startBoard = (menRow Black 0) ++ (pawnRow Black 1) ++ (pawnRow White 6) ++ (menRow White 7)

@@ -51,6 +51,12 @@ offBoard pos = not (onBoard pos)
 getPos :: Pos -> Board -> [Square]
 getPos pos board = filter (\p -> pos == (position p)) board
 
+targetPiece :: Move -> Square
+targetPiece (Move p _) = p
+
+toPos :: Move -> Pos
+toPos (Move _ p) = p
+
 executeMove :: Move -> Board -> Board
 executeMove (Move s p) b = move s p b
 

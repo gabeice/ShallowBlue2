@@ -1,8 +1,8 @@
 module Game where
 
 import Board(startBoard,isMated,validMoves)
-import Square(Board,Move,move)
-import Player(Player(Player1,Player2),prompt,color,targetPiece,toPos)
+import Square(Board,Move,move,targetPiece,toPos)
+import Player(Player(Player1,Player2),prompt,color)
 
 type Game = [Move]
 

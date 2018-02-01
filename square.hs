@@ -7,6 +7,7 @@ data PieceType = King | Queen | Rook | Bishop | Knight | Pawn deriving Eq
 type Pos = (Int, Int)
 type Dir = (Int, Int)
 type Step = (Int, Int)
+data Move = Move Square Pos
 
 color :: Square -> Color
 color (Piece c _ _) = c
@@ -50,6 +51,9 @@ offBoard pos = not (onBoard pos)
 getPos :: Pos -> Board -> [Square]
 getPos pos board = filter (\p -> pos == (position p)) board
 
+executeMove :: Move -> Board -> Board
+executeMove (Move s p) b = move s p b
+
 move :: Square -> Pos -> Board -> Board
 move piece toPos board = (Piece (color piece) (pieceType piece) toPos) : (filter (\p -> p /= piece) board)
 
@@ -57,8 +61,8 @@ isOccupiedBy :: Pos -> Color -> Board -> Bool
 isOccupiedBy pos col board = (not (null occupier)) && (color (occupier !! 0)) == col
     where occupier = (getPos pos board)
 
-slideMoves :: Square -> Board -> [Board]
-slideMoves piece board = [(move piece pos board) | pos <- validSlides]
+slideMoves :: Square -> Board -> [Move]
+slideMoves piece board = [(Move piece pos) | pos <- validSlides]
     where validSlides = foldr (++) [] [(slideToCapture piece dir board) | dir <- (moveDirs (pieceType piece))]
 
 slideToCapture :: Square -> Dir -> Board -> [Pos]
@@ -71,13 +75,13 @@ slideToCapture piece dir board | isOccupiedBy (head afterThat) (color piece) boa
 slideOff :: Square -> Dir -> [Pos]
 slideOff piece dir = takeWhile onBoard (iterate (\x -> diff x dir) (position piece))
 
-stepMoves :: Square -> Board -> [Board]
-stepMoves piece board = [(move piece pos board) | pos <- validSteps]
+stepMoves :: Square -> Board -> [Move]
+stepMoves piece board = [(Move piece pos) | pos <- validSteps]
     where validSteps = filter (\p -> not (isOccupiedBy p (color piece) board)) possibleSteps
           possibleSteps = filter onBoard [(diff (position piece) dir) | dir <- moveSteps (pieceType piece)]
 
-pawnMoves :: Square -> Board -> [Board]
-pawnMoves pawn board = [(move pawn pos board) | pos <- forwardMoves pawn board ++ captureMoves pawn board]
+pawnMoves :: Square -> Board -> [Move]
+pawnMoves pawn board = [(Move pawn pos) | pos <- forwardMoves pawn board ++ captureMoves pawn board]
 
 captureMoves :: Square -> Board -> [Pos]
 captureMoves (Piece Black Pawn pos) board = filter (\p -> isOccupiedBy p White board) cornerMoves

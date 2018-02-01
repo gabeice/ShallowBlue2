@@ -1,9 +1,8 @@
 module Player where
 
-import Square(Board,Square(Piece),PieceType(Pawn),Color(White,Black),Pos)
+import Square(Board,Square,Color(White,Black),Pos,Move(Move))
 
 data Player = Player1 | Player2
-data Move = Move Square Pos
 
 color :: Player -> Color
 color Player1 = White
@@ -15,4 +14,5 @@ targetPiece (Move p _) = p
 toPos :: Move -> Pos
 toPos (Move _ p) = p
 
-prompt :: Player -> [Board] -> Move
+prompt :: Player -> [Move] -> Move
+prompt p ms = head ms

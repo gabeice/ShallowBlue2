@@ -1,6 +1,6 @@
 module Player where
 
-import Square(Board,Color,Move,move,targetPiece,toPos)
+import Piece(Board,Color,Move,move,targetPiece,toPos)
 import Board(startBoard,validMoves,isMated)
 import Display(Display,getMove)
 

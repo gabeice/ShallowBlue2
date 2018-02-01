@@ -1,15 +1,15 @@
-module Square where
+module Piece where
 
-type Board = [Square]
-data Square = Piece { color :: Color, pieceType :: PieceType, position :: Pos } deriving Eq
+type Board = [Piece]
+data Piece = Piece { color :: Color, pieceType :: PieceType, position :: Pos } deriving Eq
 data Color = Black | White deriving Eq
 data PieceType = King | Queen | Rook | Bishop | Knight | Pawn deriving Eq
 type Pos = (Int, Int)
 type Dir = (Int, Int)
 type Step = (Int, Int)
-data Move = Move { targetPiece :: Square, toPos :: Pos }
+data Move = Move { targetPiece :: Piece, toPos :: Pos }
 
-symbol :: Square -> Char
+symbol :: Piece -> Char
 symbol (Piece _ King _) = '♚'
 symbol (Piece _ Queen _) = '♛'
 symbol (Piece _ Rook _) = '♜'
@@ -47,49 +47,49 @@ onBoard pos = all (\n -> n >= 0 && n <= 7) pos
 offBoard :: Pos -> Bool
 offBoard pos = not (onBoard pos)
 
-getPos :: Pos -> Board -> [Square]
+getPos :: Pos -> Board -> [Piece]
 getPos pos board = filter (\p -> pos == (position p)) board
 
 executeMove :: Move -> Board -> Board
 executeMove (Move s p) b = move s p b
 
-move :: Square -> Pos -> Board -> Board
+move :: Piece -> Pos -> Board -> Board
 move piece toPos board = (Piece (color piece) (pieceType piece) toPos) : (filter (\p -> p /= piece) board)
 
 isOccupiedBy :: Pos -> Color -> Board -> Bool
 isOccupiedBy pos col board = (not (null occupier)) && (color (occupier !! 0)) == col
     where occupier = (getPos pos board)
 
-slideMoves :: Square -> Board -> [Move]
+slideMoves :: Piece -> Board -> [Move]
 slideMoves piece board = [(Move piece pos) | pos <- validSlides]
     where validSlides = foldr (++) [] [(slideToCapture piece dir board) | dir <- (moveDirs (pieceType piece))]
 
-slideToCapture :: Square -> Dir -> Board -> [Pos]
+slideToCapture :: Piece -> Dir -> Board -> [Pos]
 slideToCapture piece dir board | isOccupiedBy (head afterThat) (color piece) board = emptySpots
                                | otherwise = (head afterThat) : emptySpots
     where emptySpots = takeWhile notOccupied (slideOff piece dir)
           afterThat = dropWhile notOccupied (slideOff piece dir)
           notOccupied = (\p -> null (getPos p board))
 
-slideOff :: Square -> Dir -> [Pos]
+slideOff :: Piece -> Dir -> [Pos]
 slideOff piece dir = takeWhile onBoard (iterate (\x -> diff x dir) (position piece))
 
-stepMoves :: Square -> Board -> [Move]
+stepMoves :: Piece -> Board -> [Move]
 stepMoves piece board = [(Move piece pos) | pos <- validSteps]
     where validSteps = filter (\p -> not (isOccupiedBy p (color piece) board)) possibleSteps
           possibleSteps = filter onBoard [(diff (position piece) dir) | dir <- moveSteps (pieceType piece)]
 
-pawnMoves :: Square -> Board -> [Move]
+pawnMoves :: Piece -> Board -> [Move]
 pawnMoves pawn board = [(Move pawn pos) | pos <- forwardMoves pawn board ++ captureMoves pawn board]
 
-captureMoves :: Square -> Board -> [Pos]
+captureMoves :: Piece -> Board -> [Pos]
 captureMoves (Piece Black Pawn pos) board = filter (\p -> isOccupiedBy p White board) cornerMoves
     where cornerMoves = filter onBoard [(diff pos (-1, -1)), (diff pos (-1,1))]
 
 captureMoves (Piece White Pawn pos) board = filter (\p -> isOccupiedBy p Black board) cornerMoves
     where cornerMoves = filter onBoard [(diff pos (1, -1)), (diff pos (1,1))]
 
-forwardMoves :: Square -> Board -> [Pos]
+forwardMoves :: Piece -> Board -> [Pos]
 forwardMoves (Piece Black Pawn pos) board | (offBoard oneForward) || not (null (getPos oneForward board)) = []
                                           | (offBoard twoForward) || not (null (getPos twoForward board)) = [oneForward]
                                           | otherwise = [oneForward, twoForward]

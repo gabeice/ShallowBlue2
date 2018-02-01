@@ -1,12 +1,12 @@
 module Board where
 
-import Square
+import Piece
 
-king :: Color -> Board -> [Square]
+king :: Color -> Board -> [Piece]
 king col board = filter (\p -> (pieceType p == King) && (color p == col)) board
 
-occupiedSquares :: Color -> Board -> [Square]
-occupiedSquares col board = filter (\p -> color p == col) board
+occupiedPieces :: Color -> Board -> [Piece]
+occupiedPieces col board = filter (\p -> color p == col) board
 
 isChecked :: Color -> Board -> Bool
 isChecked col board = any (\m -> null (king col m)) (map (\m -> executeMove m board) (allMoves (oppositeColor col) board))
@@ -19,10 +19,10 @@ class HasMoves a where
     allMoves :: a -> Board -> [Move]
 
 instance HasMoves Color where
-    validMoves col board = foldr (++) [] [validMoves piece board | piece <- occupiedSquares col board]
-    allMoves col board = foldr (++) [] [allMoves piece board | piece <- occupiedSquares col board]
+    validMoves col board = foldr (++) [] [validMoves piece board | piece <- occupiedPieces col board]
+    allMoves col board = foldr (++) [] [allMoves piece board | piece <- occupiedPieces col board]
 
-instance HasMoves Square where
+instance HasMoves Piece where
     validMoves piece board = filter (\m -> not (isChecked (color piece) (executeMove m board))) (allMoves piece board)
     allMoves piece board | isSliding (pieceType piece) = slideMoves piece board
                          | (pieceType piece) /= Pawn = stepMoves piece board
@@ -31,10 +31,10 @@ instance HasMoves Square where
 startBoard :: Board
 startBoard = (menRow Black 0) ++ (pawnRow Black 1) ++ (pawnRow White 6) ++ (menRow White 7)
 
-pawnRow :: Color -> Int -> [Square]
+pawnRow :: Color -> Int -> [Piece]
 pawnRow color idx = [Piece color Pawn (idx, n) | n <- [0..7]]
 
-menRow :: Color -> Int -> [Square]
+menRow :: Color -> Int -> [Piece]
 menRow color idx = [Piece color Rook (idx, 0),
                     Piece color Knight (idx, 1),
                     Piece color Bishop (idx, 2),

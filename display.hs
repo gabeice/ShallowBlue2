@@ -1,7 +1,7 @@
 module Display where
 
 import UI.HSCurses.Curses
-import Square(Board,Move)
+import Piece(Board,Move)
 
 data Display = Display { board :: Board }
 

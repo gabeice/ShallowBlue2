@@ -9,4 +9,4 @@ color :: Player -> Color
 color (Player _ c) = c
 
 prompt :: Player -> [Move] -> Move
-prompt p ms = head ms
+PROMPT ALL THE THINGS!!!!!!!!

@@ -18,6 +18,14 @@ pieceType (Piece _ t _) = t
 position :: Square -> Pos
 position (Piece _ _ p) = p
 
+symbol :: Square -> Char
+symbol (Piece _ King _) = '♚'
+symbol (Piece _ Queen _) = '♛'
+symbol (Piece _ Rook _) = '♜'
+symbol (Piece _ Bishop _) = '♝'
+symbol (Piece _ Knight _) = '♞'
+symbol (Piece _ Pawn _) = '♟'
+
 oppositeColor :: Color -> Color
 oppositeColor White = Black
 oppositeColor Black = White

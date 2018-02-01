@@ -2,11 +2,11 @@ module Player where
 
 import Square(Board,Square,Color(White,Black),Pos,Move(Move))
 
-data Player = Player1 | Player2
+data Player = Player PlayerType Color
+data PlayerType = Human
 
 color :: Player -> Color
-color Player1 = White
-color Player2 = Black
+color (Player _ c) = c
 
 prompt :: Player -> [Move] -> Move
-PROMPT ALL THE THINGS!!!!!!!!!!!!
+prompt p ms = head ms

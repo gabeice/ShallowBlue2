@@ -7,7 +7,7 @@ data PieceType = King | Queen | Rook | Bishop | Knight | Pawn deriving Eq
 type Pos = (Int, Int)
 type Dir = (Int, Int)
 type Step = (Int, Int)
-data Move = Move Square Pos
+data Move = Move { targetPiece :: Square, toPos :: Pos }
 
 symbol :: Square -> Char
 symbol (Piece _ King _) = '♚'
@@ -49,12 +49,6 @@ offBoard pos = not (onBoard pos)
 
 getPos :: Pos -> Board -> [Square]
 getPos pos board = filter (\p -> pos == (position p)) board
-
-targetPiece :: Move -> Square
-targetPiece (Move p _) = p
-
-toPos :: Move -> Pos
-toPos (Move _ p) = p
 
 executeMove :: Move -> Board -> Board
 executeMove (Move s p) b = move s p b

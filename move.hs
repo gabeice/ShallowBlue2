@@ -3,7 +3,7 @@ module Move where
 import Piece(Piece(Piece),Color(White,Black),Dir,Pos,color,position,pieceType,moveDirs,moveSteps)
 
 type Board = [Piece]
-data Move = Move { targetPiece :: Piece, toPos :: Pos }
+data Move = Move { targetPiece :: Piece, toPos :: Pos } deriving Eq
 
 diff :: Pos -> Dir -> Pos
 diff pos dir = ((fst pos) + (fst dir), (snd pos) + (snd dir))

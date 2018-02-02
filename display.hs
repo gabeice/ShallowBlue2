@@ -5,8 +5,8 @@ import UI.HSCurses.CursesHelper
 import Control.Concurrent
 
 import Board(Board,startBoard)
-import Move(Move,getPos,diff,offBoard,targetPiece)
-import Piece(Piece,Pos,Color(White,Black),Dir,symbol,color)
+import Move(Move(Move),toPos,getPos,diff,offBoard,targetPiece)
+import Piece(Piece,Pos,Color(White,Black),Dir,symbol,color,position)
 
 data Display = Display { board :: Board, startPos :: Pos, moveList :: [Move] }
 
@@ -100,12 +100,23 @@ getFromPos display startPos = do render board startPos
           pieceAt = getPos startPos board
           repeat = getFromPos display
 
---getToPos :: Display -> Pos -> [Move] -> IO Pos
---
---getMove :: Display -> IO Move
---getMove display = do fromPos <- getFromPos display (startPos display)
---                     toPos <- getToPos display (position fromPos)
---                     return (Move fromPos toPos)
+getToPos :: Display -> Piece -> Pos -> IO Pos
+getToPos display fromPos startPos = do render board startPos
+                                       x <- getch
+                                       if elem (toInteger x) navigationKeys
+                                       then repeat (newPos startPos (toInteger x))
+                                       else if x == returnKey
+                                            then if not (elem (Move fromPos startPos) (moveList display))
+                                                 then repeat startPos
+                                                 else return startPos
+                                            else repeat startPos
+    where board = (Display.board display)
+          repeat = getToPos display fromPos
+
+getMove :: Display -> IO Move
+getMove display = do pieceToMove <- getFromPos display (startPos display)
+                     toPos <- getToPos display pieceToMove (position pieceToMove)
+                     return (Move pieceToMove toPos)
 
 test = do screen <- initializeDisplay
           mv <- getFromPos (Display startBoard (0,0) []) (0,0)

@@ -89,12 +89,16 @@ getFromPos :: Display -> Pos -> IO Piece
 getFromPos display startPos = do render board startPos
                                  x <- getch
                                  if elem (toInteger x) navigationKeys
-                                 then getFromPos display (newPos startPos (toInteger x))
+                                 then repeat (newPos startPos (toInteger x))
                                  else if x == returnKey
-                                      then return (head (getPos startPos board))
-                                      else getFromPos display startPos
+                                      then if null pieceAt
+                                           then repeat startPos
+                                           else return (head pieceAt)
+                                      else repeat startPos
     where board = (Display.board display)
-
+          pieceAt = getPos startPos board
+          repeat = getFromPos display
+          
 --getToPos :: Display -> Pos -> [Move] -> IO Pos
 --
 --getMove :: Display -> IO Move

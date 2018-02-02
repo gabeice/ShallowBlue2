@@ -5,10 +5,21 @@ import UI.HSCurses.CursesHelper
 import Control.Concurrent
 
 import Board(Board,startBoard)
-import Move(Move,getPos)
-import Piece(Pos,Color(White,Black),symbol,color)
+import Move(Move,getPos,diff,offBoard,targetPiece)
+import Piece(Piece,Pos,Color(White,Black),Dir,symbol,color)
 
 data Display = Display { board :: Board, startPos :: Pos, moveList :: [Move] }
+
+downArrow = 258
+upArrow = 259
+leftArrow = 260
+rightArrow = 261
+
+returnKey = 10
+quitKey = 113
+
+navigationKeys :: [Integer]
+navigationKeys = [downArrow, upArrow, leftArrow, rightArrow]
 
 initializeDisplay :: IO Window
 initializeDisplay = do initCurses
@@ -64,13 +75,26 @@ renderSquare (i,j) (symbol, color) cursorPos = do win <- newWin 3 6 (i * 3) (j *
                                                   wBorder win (Border ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ')
                                                   wRefresh win
 
---printMessage :: Display -> String -> IO ()
---
---getFromPos :: Display -> Pos -> IO Piece
---getFromPos display startPos = do render (board display) startPos
---                                 x <- getch
---                                 | x ==
---
+newPos :: Pos -> Integer -> Pos
+newPos pos 258 = newPos' pos (1,0)
+newPos pos 259 = newPos' pos (-1,0)
+newPos pos 260 = newPos' pos (0,-1)
+newPos pos 261 = newPos' pos (0,1)
+
+newPos' :: Pos -> Dir -> Pos
+newPos' pos dir = if offBoard new then pos else new
+    where new = diff pos dir
+
+getFromPos :: Display -> Pos -> IO Piece
+getFromPos display startPos = do render board startPos
+                                 x <- getch
+                                 if elem (toInteger x) navigationKeys
+                                 then getFromPos display (newPos startPos (toInteger x))
+                                 else if x == returnKey
+                                      then return (head (getPos startPos board))
+                                      else getFromPos display startPos
+    where board = (Display.board display)
+
 --getToPos :: Display -> Pos -> [Move] -> IO Pos
 --
 --getMove :: Display -> IO Move
@@ -79,7 +103,8 @@ renderSquare (i,j) (symbol, color) cursorPos = do win <- newWin 3 6 (i * 3) (j *
 --                     return (Move fromPos toPos)
 
 test = do screen <- initializeDisplay
-          render startBoard (0,5)
+          mv <- getFromPos (Display startBoard (0,0) []) (0,0)
+          wAddStr screen [symbol mv]
           refresh
           threadDelay 1000000
           clearDisplay screen

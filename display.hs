@@ -91,14 +91,15 @@ getFromPos display startPos = do render board startPos
                                  if elem (toInteger x) navigationKeys
                                  then repeat (newPos startPos (toInteger x))
                                  else if x == returnKey
-                                      then if null pieceAt
+                                      then if null pieceAt || not (elem (head pieceAt) moveablePieces)
                                            then repeat startPos
                                            else return (head pieceAt)
                                       else repeat startPos
     where board = (Display.board display)
+          moveablePieces = map targetPiece (moveList display)
           pieceAt = getPos startPos board
           repeat = getFromPos display
-          
+
 --getToPos :: Display -> Pos -> [Move] -> IO Pos
 --
 --getMove :: Display -> IO Move

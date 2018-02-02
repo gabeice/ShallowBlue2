@@ -11,8 +11,7 @@ type Log = [Move]
 
 currentBoard :: Log -> Board
 currentBoard [] = startBoard
-currentBoard (m:ms) = (move (targetPiece m) (toPos m) lastBoard)
-    where lastBoard = currentBoard ms
+currentBoard (m:ms) = (move (targetPiece m) (toPos m) (currentBoard ms))
 
 lastMove :: Log -> Pos
 lastMove [] = (0,0)

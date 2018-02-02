@@ -2,9 +2,9 @@ module Display where
 
 import UI.HSCurses.Curses
 import UI.HSCurses.CursesHelper
-import Board(Board)
-import Move(Move)
-import Piece(Pos,symbol)
+import Board(Board,startBoard)
+import Move(Move,getPos)
+import Piece(Pos,Color(White,Black),symbol,color)
 
 data Display = Display { board :: Board }
 
@@ -29,25 +29,34 @@ clearDisplay w = do keypad w False
 --render (Display board) (a,b) = do [mvWAddStr w 1 2 "K" | w <- renderSquares]
 --                                  [wRefresh w | w <- renderSquares]
 
+initColors :: IO ()
 initColors = do initPair (Pair 1) black (Color 94)
                 initPair (Pair 2) black (Color 101)
                 initPair (Pair 3) white (Color 94)
                 initPair (Pair 4) white (Color 101)
 
-renderSquares :: Window -> [(Int,Int)] -> IO Window
-renderSquares screen [a] = renderSquare a 'O' screen
-renderSquares screen (x:xs) = do renderSquare x 'O' screen
-                                 renderSquares screen xs
+getAttrs :: Board -> Pos -> (Char, Piece.Color)
+getAttrs board pos = if null piece
+                     then (' ', White)
+                     else (symbol (piece !! 0), Piece.color (piece !! 0))
+    where piece = getPos pos board
 
-renderSquare :: (Int,Int) -> Char -> Window -> IO Window
-renderSquare (i,j) symbol screen = do win <- newWin 3 6 (i * 3) (j * 6)
-                                      if mod (i + j) 2 == 0
-                                      then wAttrSet win (attr0, (Pair 1))
-                                      else wAttrSet win (attr0, (Pair 2))
-                                      mvWAddStr win 1 2 ("\b " ++ (symbol : "   "))
-                                      wBorder win (Border ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ')
-                                      wRefresh win
-                                      return screen
+renderSquares :: Window -> Board -> [Pos] -> IO Window
+renderSquares screen board [a] = renderSquare a (getAttrs board a) screen
+renderSquares screen board (x:xs) = do renderSquare x (getAttrs board x) screen
+                                       renderSquares screen board xs
+
+renderSquare :: Pos -> (Char, Piece.Color) -> Window -> IO Window
+renderSquare (i,j) (symbol, color) screen = do win <- newWin 3 6 (i * 3) (j * 6)
+                                               if mod (i + j) 2 == 0
+                                               then if color == Black then wAttrSet win (attr0, (Pair 1))
+                                                                      else wAttrSet win (attr0, (Pair 3))
+                                               else if color == Black then wAttrSet win (attr0, (Pair 2))
+                                                                      else wAttrSet win (attr0, (Pair 4))
+                                               mvWAddStr win 1 2 ("\b " ++ (symbol : "   "))
+                                               wBorder win (Border ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ')
+                                               wRefresh win
+                                               return screen
 
 --printMessage :: Display -> String -> IO ()
 --
@@ -66,13 +75,12 @@ renderSquare (i,j) symbol screen = do win <- newWin 3 6 (i * 3) (j * 6)
 wait n = sequence_ [return () | _ <- [1..n]]
 
 test = do initCurses
-          initPair (Pair 1) black (Color 94)
-          initPair (Pair 2) black (Color 101)
+          initColors
           screen <- initScr
           keypad screen True
           echo False
           cBreak True
-          renderSquares screen [(i,j) | i <- [0..7], j <- [0..7]]
+          renderSquares screen startBoard [(i,j) | i <- [0..7], j <- [0..7]]
           refresh
           wait 7000000
           endWin

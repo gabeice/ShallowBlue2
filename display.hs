@@ -36,6 +36,7 @@ initializeDisplay = do initCurses
                        initColors
                        screen <- initScr
                        keypad screen True
+                       cursSet CursorInvisible
                        echo False
                        cBreak True
                        return screen

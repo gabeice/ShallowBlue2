@@ -12,19 +12,19 @@ onBoard :: Pos -> Bool
 onBoard pos = all (\n -> n >= 0 && n <= 7) pos
 
 offBoard :: Pos -> Bool
-offBoard pos = not (onBoard pos)
+offBoard = not . onBoard
 
 getPos :: Pos -> Board -> [Piece]
-getPos pos board = filter (\p -> pos == (position p)) board
+getPos pos board = filter ((==pos) . position) board
 
 executeMove :: Move -> Board -> Board
 executeMove (Move s p) b = move s p b
 
 move :: Piece -> Pos -> Board -> Board
-move piece toPos board = (Piece (color piece) (pieceType piece) toPos) : (filter (\p -> p /= piece) board)
+move piece toPos board = (Piece (color piece) (pieceType piece) toPos) : (filter (/=piece) board)
 
 isOccupiedBy :: Pos -> Color -> Board -> Bool
-isOccupiedBy pos col board = (not (null occupier)) && (color (occupier !! 0)) == col
+isOccupiedBy pos col board = (not (null occupier)) && (color (head occupier)) == col
     where occupier = (getPos pos board)
 
 slideMoves :: Piece -> Board -> [Move]

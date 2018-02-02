@@ -29,17 +29,25 @@ clearDisplay w = do keypad w False
 --render (Display board) (a,b) = do [mvWAddStr w 1 2 "K" | w <- renderSquares]
 --                                  [wRefresh w | w <- renderSquares]
 
+initColors = do initPair (Pair 1) black (Color 94)
+                initPair (Pair 2) black (Color 101)
+                initPair (Pair 3) white (Color 94)
+                initPair (Pair 4) white (Color 101)
+
 renderSquares :: Window -> [(Int,Int)] -> IO Window
-renderSquares screen [a] = renderSquare a screen
-renderSquares screen (x:xs) = do renderSquare x screen
+renderSquares screen [a] = renderSquare a 'O' screen
+renderSquares screen (x:xs) = do renderSquare x 'O' screen
                                  renderSquares screen xs
 
-renderSquare :: (Int,Int) -> Window -> IO Window
-renderSquare (i,j) screen = do win <- newWin 3 6 (i * 3) (j * 6)
-                               if mod (i + j) 2 == 0 then wAttrSet win (led, (Pair 1)) else wAttrSet win (led, (Pair 2))
-                               mvWAddStr win 1 2 "K"
-                               wRefresh win
-                               return screen
+renderSquare :: (Int,Int) -> Char -> Window -> IO Window
+renderSquare (i,j) symbol screen = do win <- newWin 3 6 (i * 3) (j * 6)
+                                      if mod (i + j) 2 == 0
+                                      then wAttrSet win (attr0, (Pair 1))
+                                      else wAttrSet win (attr0, (Pair 2))
+                                      mvWAddStr win 1 2 ("\b " ++ (symbol : "   "))
+                                      wBorder win (Border ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ')
+                                      wRefresh win
+                                      return screen
 
 --printMessage :: Display -> String -> IO ()
 --
@@ -58,8 +66,8 @@ renderSquare (i,j) screen = do win <- newWin 3 6 (i * 3) (j * 6)
 wait n = sequence_ [return () | _ <- [1..n]]
 
 test = do initCurses
-          initPair (Pair 1) (Color 60) (Color 233)
-          initPair (Pair 2) (Color 233) (Color 60)
+          initPair (Pair 1) black (Color 94)
+          initPair (Pair 2) black (Color 101)
           screen <- initScr
           keypad screen True
           echo False

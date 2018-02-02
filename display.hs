@@ -21,6 +21,16 @@ quitKey = 113
 navigationKeys :: [Integer]
 navigationKeys = [downArrow, upArrow, leftArrow, rightArrow]
 
+newPos :: Pos -> Integer -> Pos
+newPos pos 258 = newPos' pos (1,0)
+newPos pos 259 = newPos' pos (-1,0)
+newPos pos 260 = newPos' pos (0,-1)
+newPos pos 261 = newPos' pos (0,1)
+
+newPos' :: Pos -> Dir -> Pos
+newPos' pos dir = if offBoard new then pos else new
+    where new = diff pos dir
+
 initializeDisplay :: IO Window
 initializeDisplay = do initCurses
                        initColors
@@ -74,16 +84,6 @@ renderSquare (i,j) (symbol, color) cursorPos = do win <- newWin 3 6 (i * 3) (j *
                                                   mvWAddStr win 1 2 ("\b " ++ (symbol : "   "))
                                                   wBorder win (Border ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ')
                                                   wRefresh win
-
-newPos :: Pos -> Integer -> Pos
-newPos pos 258 = newPos' pos (1,0)
-newPos pos 259 = newPos' pos (-1,0)
-newPos pos 260 = newPos' pos (0,-1)
-newPos pos 261 = newPos' pos (0,1)
-
-newPos' :: Pos -> Dir -> Pos
-newPos' pos dir = if offBoard new then pos else new
-    where new = diff pos dir
 
 getFromPos :: Display -> Pos -> IO Piece
 getFromPos display startPos = do render board startPos

@@ -10,8 +10,7 @@ data Display = Display { board :: Board }
 
 initializeDisplay :: IO Window
 initializeDisplay = do initCurses
-                       initPair (Pair 1) (Color 60) (Color 233)
-                       initPair (Pair 2) (Color 233) (Color 60)
+                       initColors
                        screen <- initScr
                        keypad screen True
                        echo False
@@ -69,13 +68,8 @@ renderSquare (i,j) (symbol, color) screen = do win <- newWin 3 6 (i * 3) (j * 6)
 
 wait n = sequence_ [return () | _ <- [1..n]]
 
-test = do initCurses
-          initColors
-          screen <- initScr
-          keypad screen True
-          echo False
-          cBreak True
+test = do screen <- initializeDisplay
           render screen startBoard [(i,j) | i <- [0..7], j <- [0..7]]
           refresh
           wait 7000000
-          endWin
+          clearDisplay screen

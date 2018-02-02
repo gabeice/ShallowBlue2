@@ -30,10 +30,10 @@ initColors = do initPair (Pair 1) black (Color 94)
                 initPair (Pair 2) black (Color 101)
                 initPair (Pair 3) white (Color 94)
                 initPair (Pair 4) white (Color 101)
-                initPair (Pair 5) black red
+                initPair (Pair 5) black green
                 initPair (Pair 6) black red
                 initPair (Pair 7) white green
-                initPair (Pair 8) white green
+                initPair (Pair 8) white red
 
 getAttrs :: Board -> Pos -> (Char, Piece.Color)
 getAttrs board pos = if null piece
@@ -41,29 +41,33 @@ getAttrs board pos = if null piece
                      else (symbol (head piece), Piece.color (head piece))
     where piece = getPos pos board
 
-render :: Board -> IO ()
-render board = render' board [(i,j) | i <- [0..7], j <- [0..7]]
+render :: Board -> Pos -> IO ()
+render board cursorPos = render' board cursorPos [(i,j) | i <- [0..7], j <- [0..7]]
 
-render' :: Board -> [Pos] -> IO ()
-render' board [a] = renderSquare a (getAttrs board a)
-render' board (x:xs) = do renderSquare x (getAttrs board x)
-                          render' board xs
+render' :: Board -> Pos -> [Pos] -> IO ()
+render' board cursorPos [a] = renderSquare a (getAttrs board a) cursorPos
+render' board cursorPos (x:xs) = do renderSquare x (getAttrs board x) cursorPos
+                                    render' board cursorPos xs
 
-renderSquare :: Pos -> (Char, Piece.Color) -> IO ()
-renderSquare (i,j) (symbol, color) = do win <- newWin 3 6 (i * 3) (j * 6)
-                                        if mod (i + j) 2 == 0
-                                        then if color == Black then wAttrSet win (attr0, (Pair 1))
-                                                               else wAttrSet win (attr0, (Pair 3))
-                                        else if color == Black then wAttrSet win (attr0, (Pair 2))
-                                                               else wAttrSet win (attr0, (Pair 4))
-                                        mvWAddStr win 1 2 ("\b " ++ (symbol : "   "))
-                                        wBorder win (Border ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ')
-                                        wRefresh win
+renderSquare :: Pos -> (Char, Piece.Color) -> Pos -> IO ()
+renderSquare (i,j) (symbol, color) cursorPos = do win <- newWin 3 6 (i * 3) (j * 6)
+                                                  if (i,j) == cursorPos
+                                                  then if color == Black
+                                                       then wAttrSet win (attr0, (Pair 5))
+                                                       else wAttrSet win (attr0, (Pair 7))
+                                                  else if mod (i + j) 2 == 0
+                                                       then if color == Black then wAttrSet win (attr0, (Pair 1))
+                                                                              else wAttrSet win (attr0, (Pair 3))
+                                                       else if color == Black then wAttrSet win (attr0, (Pair 2))
+                                                                              else wAttrSet win (attr0, (Pair 4))
+                                                  mvWAddStr win 1 2 ("\b " ++ (symbol : "   "))
+                                                  wBorder win (Border ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ')
+                                                  wRefresh win
 
 --printMessage :: Display -> String -> IO ()
 --
 --getFromPos :: Display -> Pos -> IO Piece
---getFromPos display startPos = do render display startPos
+--getFromPos display startPos = do render (board display) startPos
 --                                 x <- getch
 --                                 | x ==
 --
@@ -75,7 +79,7 @@ renderSquare (i,j) (symbol, color) = do win <- newWin 3 6 (i * 3) (j * 6)
 --                     return (Move fromPos toPos)
 
 test = do screen <- initializeDisplay
-          render startBoard
+          render startBoard (0,5)
           refresh
           threadDelay 1000000
           clearDisplay screen

@@ -1,6 +1,15 @@
 module Move where
 
-import Piece(Piece(Piece),Color(White,Black),Dir,Pos,color,position,pieceType,moveDirs,moveSteps)
+import Piece(Piece(Piece),
+             Color(White,Black),
+             PieceType(Queen,Pawn),
+             Dir,
+             Pos,
+             color,
+             position,
+             pieceType,
+             moveDirs,
+             moveSteps)
 
 type Board = [Piece]
 data Move = Move { targetPiece :: Piece, toPos :: Pos } deriving Eq
@@ -21,6 +30,8 @@ executeMove :: Move -> Board -> Board
 executeMove (Move s p) b = move s p b
 
 move :: Piece -> Pos -> Board -> Board
+move (Piece White Pawn pos) (0,a) board = (Piece White Queen (0,a)) : (filter (/=(Piece White Pawn pos)) board)
+move (Piece Black Pawn pos) (7,a) board = (Piece Black Queen (7,a)) : (filter (/=(Piece Black Pawn pos)) board)
 move piece toPos board = (Piece (color piece) (pieceType piece) toPos) : (filter (/=piece) board)
 
 isOccupiedBy :: Pos -> Color -> Board -> Bool
@@ -58,13 +69,13 @@ captureMoves (Piece White _ pos) board = filter (\p -> isOccupiedBy p Black boar
 
 forwardMoves :: Piece -> Board -> [Pos]
 forwardMoves (Piece Black _ pos) board | (offBoard oneForward) || not (null (getPos oneForward board)) = []
-                                          | (offBoard twoForward) || not (null (getPos twoForward board)) = [oneForward]
-                                          | otherwise = [oneForward, twoForward]
+                                       | (offBoard twoForward) || not (null (getPos twoForward board)) = [oneForward]
+                                       | otherwise = [oneForward, twoForward]
     where oneForward = diff pos (1,0)
           twoForward = diff pos (2,0)
 
 forwardMoves (Piece White _ pos) board | (offBoard oneForward) || not (null (getPos oneForward board)) = []
-                                          | (offBoard twoForward) || not (null (getPos twoForward board)) = [oneForward]
-                                          | otherwise = [oneForward, twoForward]
+                                       | (offBoard twoForward) || not (null (getPos twoForward board)) = [oneForward]
+                                       | otherwise = [oneForward, twoForward]
     where oneForward = diff pos (-1,0)
           twoForward = diff pos (-2,0)

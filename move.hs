@@ -6,7 +6,7 @@ type Board = [Piece]
 data Move = Move { targetPiece :: Piece, toPos :: Pos } deriving Eq
 
 diff :: Pos -> Dir -> Pos
-diff pos dir = ((fst pos) + (fst dir), (snd pos) + (snd dir))
+diff (a,b) (c,d) = (a + b, c + d)
 
 onBoard :: Pos -> Bool
 onBoard pos = all (\n -> n >= 0 && n <= 7) pos

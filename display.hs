@@ -18,16 +18,11 @@ initializeDisplay = do initCurses
                        cBreak True
                        return screen
 
-led = convertAttributes[Reverse]
-
 clearDisplay :: Window -> IO ()
 clearDisplay w = do keypad w False
                     cBreak False
                     echo True
                     endWin
-
---render (Display board) (a,b) = do [mvWAddStr w 1 2 "K" | w <- renderSquares]
---                                  [wRefresh w | w <- renderSquares]
 
 initColors :: IO ()
 initColors = do initPair (Pair 1) black (Color 94)
@@ -41,10 +36,10 @@ getAttrs board pos = if null piece
                      else (symbol (piece !! 0), Piece.color (piece !! 0))
     where piece = getPos pos board
 
-renderSquares :: Window -> Board -> [Pos] -> IO Window
-renderSquares screen board [a] = renderSquare a (getAttrs board a) screen
-renderSquares screen board (x:xs) = do renderSquare x (getAttrs board x) screen
-                                       renderSquares screen board xs
+render :: Window -> Board -> [Pos] -> IO Window
+render screen board [a] = renderSquare a (getAttrs board a) screen
+render screen board (x:xs) = do renderSquare x (getAttrs board x) screen
+                                render screen board xs
 
 renderSquare :: Pos -> (Char, Piece.Color) -> Window -> IO Window
 renderSquare (i,j) (symbol, color) screen = do win <- newWin 3 6 (i * 3) (j * 6)
@@ -80,7 +75,7 @@ test = do initCurses
           keypad screen True
           echo False
           cBreak True
-          renderSquares screen startBoard [(i,j) | i <- [0..7], j <- [0..7]]
+          render screen startBoard [(i,j) | i <- [0..7], j <- [0..7]]
           refresh
           wait 7000000
           endWin

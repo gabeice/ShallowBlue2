@@ -14,10 +14,13 @@ currentBoard [] = startBoard
 currentBoard (m:ms) = (move (targetPiece m) (toPos m) lastBoard)
     where lastBoard = currentBoard ms
 
+lastMove :: Log -> Move
+lastMove log = head log
+
 hasLost :: Color -> Log -> Bool
 hasLost col log = isMated col (currentBoard log)
 
 prompt :: Player -> Log -> Move
-prompt (Player Human col) log = getMove (Display board) ms
+prompt (Player Human col) log = getMove (Display board) (toPos (lastMove log)) ms
     where board = currentBoard log
           ms = validMoves col board

@@ -22,6 +22,6 @@ hasLost :: Color -> Log -> Bool
 hasLost col log = isMated col (currentBoard log)
 
 prompt :: Player -> Log -> IO Move
-prompt (Player Human col) log = do getMove (Display board (lastMove log) ms)
+prompt (Player Human col) log = getMove (Display board (lastMove log) moves)
     where board = currentBoard log
-          ms = validMoves col board
+          moves = validMoves col board

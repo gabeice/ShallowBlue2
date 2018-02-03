@@ -10,7 +10,7 @@ When you're playing chess, do you ever think to yourself, "Gol darn it! All thes
 
 This version of ShallowBlue employs an event-sourced design, whereby the basic unit of data is a ```Move``` (consisting of a game piece and a position for it to move to) and the underlying representation of the game is an ordered list of such ```Move```s. The current state of the game is not stored but rather derived from the game log. This data model has the advantage of allowing an easy way to evaluate special moves like castling and <i>en passant</i> capture (both of which are constrained by facts about previous moves) without having to resort to global state or some similar act of desperation.
 
-```aidl
+```haskell
 data Player = Player { playerType :: PlayerType, color :: Color }
 data PlayerType = Human | AI
 type Log = [Move]
@@ -35,3 +35,14 @@ prompt (Player Human col) log = getMove (Display board (lastMove log) moves)
 ### Display
 
 Board rendering is accomplished via hscurses, a Haskell wrapper around the C ncurses library. As in any serious functional programming endeavor, the IO bottleneck is kept as tight as possible. All IO functions are bundled in the ```Display``` module which is only ever invoked when prompting a human player for a move.
+
+Sharp-eyed code reviewers may notice a bit of jankiness nestled in the display code:
+
+```haskell
+                                else wAttrSet win (attr0, (Pair 4))
+    mvWAddStr win 1 2 ("\b " ++ (symbol : "   "))
+    wBorder win (Border ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ')
+    wRefresh win
+```
+
+Since I can't for the life of me find an hscurses equivalent to the curses ```bkgnd``` method, the best workaround I could devise was to add a whole lot of whitespace to all the windows. It works but it's not ideal, and either I or hscurses need to come up with a saner solution.

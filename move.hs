@@ -17,8 +17,11 @@ data Move = Move { targetPiece :: Piece, toPos :: Pos } deriving Eq
 diff :: Pos -> Dir -> Pos
 diff (a,b) (c,d) = (a + c, b + d)
 
+inRange :: Int -> Bool
+inRange = (\n -> n >= 0 && n <= 7)
+
 onBoard :: Pos -> Bool
-onBoard pos = all (\n -> n >= 0 && n <= 7) pos
+onBoard pos = inRange (fst pos) && inRange (snd pos)
 
 offBoard :: Pos -> Bool
 offBoard = not . onBoard

@@ -35,7 +35,7 @@ executeMove (Move s p) b = move s p b
 move :: Piece -> Pos -> Board -> Board
 move (Piece White Pawn pos) (0,a) board = (Piece White Queen (0,a)) : (filter (/=(Piece White Pawn pos)) board)
 move (Piece Black Pawn pos) (7,a) board = (Piece Black Queen (7,a)) : (filter (/=(Piece Black Pawn pos)) board)
-move piece toPos board = (Piece (color piece) (pieceType piece) toPos) : (filter (/=piece) board)
+move piece toPos board = (Piece (color piece) (pieceType piece) toPos) : (filter (\s -> s /= piece && (position s) /= toPos) board)
 
 isOccupiedBy :: Pos -> Color -> Board -> Bool
 isOccupiedBy pos col board = (not (null occupier)) && (color (head occupier)) == col

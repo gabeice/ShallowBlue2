@@ -46,14 +46,16 @@ slideMoves piece board = [(Move piece pos) | pos <- validSlides]
     where validSlides = foldr (++) [] [(slideToCapture piece dir board) | dir <- (moveDirs (pieceType piece))]
 
 slideToCapture :: Piece -> Dir -> Board -> [Pos]
-slideToCapture piece dir board | isOccupiedBy (head afterThat) (color piece) board = emptySpots
+slideToCapture piece dir board | null afterThat = allSpots
+                               | isOccupiedBy (head afterThat) (color piece) board = emptySpots
                                | otherwise = (head afterThat) : emptySpots
-    where emptySpots = takeWhile notOccupied (slideOff piece dir)
-          afterThat = dropWhile notOccupied (slideOff piece dir)
+    where allSpots = (slideOff piece dir)
+          emptySpots = takeWhile notOccupied allSpots
+          afterThat = dropWhile notOccupied allSpots
           notOccupied = (\p -> null (getPos p board))
 
 slideOff :: Piece -> Dir -> [Pos]
-slideOff piece dir = takeWhile onBoard (iterate (\x -> diff x dir) (position piece))
+slideOff piece dir = takeWhile onBoard (tail (iterate (\x -> diff x dir) (position piece)))
 
 stepMoves :: Piece -> Board -> [Move]
 stepMoves piece board = [(Move piece pos) | pos <- validSteps]

@@ -64,6 +64,9 @@ getAttrs board pos = if null piece
                      else (symbol (head piece), Piece.color (head piece))
     where piece = getPos pos board
 
+setColor :: Window -> Int -> IO ()
+setColor window pairNumber = wAttrSet window (attr0, (Pair pairNumber))
+
 render :: Board -> Selection -> IO ()
 render board selection = render' board selection [(i,j) | i <- [0..7], j <- [0..7]]
 
@@ -73,23 +76,23 @@ render' board selection (x:xs) = do renderSquare x (getAttrs board x) selection
                                     render' board selection xs
 
 renderSquare :: Pos -> (Char, Piece.Color) -> Selection -> IO ()
-renderSquare (i,j) (symbol, color) (cursorPos, selection) = do win <- newWin 3 6 (i * 3) (j * 6)
+renderSquare (i,j) (symbol, color) (cursorPos, selection) = do w <- newWin 3 6 (i * 3) (j * 6)
                                                                if (i,j) == selection
                                                                then if color == Black
-                                                                    then wAttrSet win (attr0, (Pair 6))
-                                                                    else wAttrSet win (attr0, (Pair 8))
+                                                                    then setColor w 6
+                                                                    else setColor w 8
                                                                else if (i,j) == cursorPos
                                                                     then if color == Black
-                                                                         then wAttrSet win (attr0, (Pair 5))
-                                                                         else wAttrSet win (attr0, (Pair 7))
+                                                                         then setColor w 5
+                                                                         else setColor w 7
                                                                     else if mod (i + j) 2 == 0
-                                                                         then if color == Black then wAttrSet win (attr0, (Pair 1))
-                                                                                                else wAttrSet win (attr0, (Pair 3))
-                                                                         else if color == Black then wAttrSet win (attr0, (Pair 2))
-                                                                                                else wAttrSet win (attr0, (Pair 4))
-                                                               mvWAddStr win 1 2 ("\b " ++ (symbol : "   "))
-                                                               wBorder win (Border ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ')
-                                                               wRefresh win
+                                                                         then if color == Black then setColor w 1
+                                                                                                else setColor w 3
+                                                                         else if color == Black then setColor w 2
+                                                                                                else setColor w 4
+                                                               mvWAddStr w 1 2 ("\b " ++ (symbol : "   "))
+                                                               wBorder w (Border ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ')
+                                                               wRefresh w
 
 getFromPos :: Display -> Pos -> IO Piece
 getFromPos display startPos = do render board (startPos,(8,8))

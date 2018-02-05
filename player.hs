@@ -1,7 +1,7 @@
 module Player where
 
 import Piece(Color,Pos)
-import Move(Move,move,targetPiece,toPos)
+import Move(Move,executeMove,toPos)
 import Board(Board,startBoard,validMoves,isMated)
 import Display(Display(Display),getMove)
 
@@ -11,7 +11,7 @@ type Log = [Move]
 
 currentBoard :: Log -> Board
 currentBoard [] = startBoard
-currentBoard (m:ms) = (move (targetPiece m) (toPos m) (currentBoard ms))
+currentBoard (m:ms) = (executeMove m (currentBoard ms))
 
 lastMove :: Log -> Pos
 lastMove [] = (0,0)

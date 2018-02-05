@@ -9,6 +9,7 @@ import Move(Move(Move),toPos,getPos,diff,offBoard,targetPiece)
 import Piece(Piece,Pos,Color(White,Black),Dir,symbol,color,position)
 
 data Display = Display { board :: Board, startPos :: Pos, moveList :: [Move] }
+type Selection = (Pos,Pos)
 
 downArrow = 258
 upArrow = 259
@@ -63,31 +64,35 @@ getAttrs board pos = if null piece
                      else (symbol (head piece), Piece.color (head piece))
     where piece = getPos pos board
 
-render :: Board -> Pos -> IO ()
-render board cursorPos = render' board cursorPos [(i,j) | i <- [0..7], j <- [0..7]]
+render :: Board -> Selection -> IO ()
+render board selection = render' board selection [(i,j) | i <- [0..7], j <- [0..7]]
 
-render' :: Board -> Pos -> [Pos] -> IO ()
-render' board cursorPos [a] = renderSquare a (getAttrs board a) cursorPos
-render' board cursorPos (x:xs) = do renderSquare x (getAttrs board x) cursorPos
-                                    render' board cursorPos xs
+render' :: Board -> Selection -> [Pos] -> IO ()
+render' board selection [a] = renderSquare a (getAttrs board a) selection
+render' board selection (x:xs) = do renderSquare x (getAttrs board x) selection
+                                    render' board selection xs
 
-renderSquare :: Pos -> (Char, Piece.Color) -> Pos -> IO ()
-renderSquare (i,j) (symbol, color) cursorPos = do win <- newWin 3 6 (i * 3) (j * 6)
-                                                  if (i,j) == cursorPos
-                                                  then if color == Black
-                                                       then wAttrSet win (attr0, (Pair 5))
-                                                       else wAttrSet win (attr0, (Pair 7))
-                                                  else if mod (i + j) 2 == 0
-                                                       then if color == Black then wAttrSet win (attr0, (Pair 1))
-                                                                              else wAttrSet win (attr0, (Pair 3))
-                                                       else if color == Black then wAttrSet win (attr0, (Pair 2))
-                                                                              else wAttrSet win (attr0, (Pair 4))
-                                                  mvWAddStr win 1 2 ("\b " ++ (symbol : "   "))
-                                                  wBorder win (Border ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ')
-                                                  wRefresh win
+renderSquare :: Pos -> (Char, Piece.Color) -> Selection -> IO ()
+renderSquare (i,j) (symbol, color) (cursorPos, selection) = do win <- newWin 3 6 (i * 3) (j * 6)
+                                                               if (i,j) == selection
+                                                               then if color == Black
+                                                                    then wAttrSet win (attr0, (Pair 6))
+                                                                    else wAttrSet win (attr0, (Pair 8))
+                                                               else if (i,j) == cursorPos
+                                                                    then if color == Black
+                                                                         then wAttrSet win (attr0, (Pair 5))
+                                                                         else wAttrSet win (attr0, (Pair 7))
+                                                                    else if mod (i + j) 2 == 0
+                                                                         then if color == Black then wAttrSet win (attr0, (Pair 1))
+                                                                                                else wAttrSet win (attr0, (Pair 3))
+                                                                         else if color == Black then wAttrSet win (attr0, (Pair 2))
+                                                                                                else wAttrSet win (attr0, (Pair 4))
+                                                               mvWAddStr win 1 2 ("\b " ++ (symbol : "   "))
+                                                               wBorder win (Border ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ')
+                                                               wRefresh win
 
 getFromPos :: Display -> Pos -> IO Piece
-getFromPos display startPos = do render board startPos
+getFromPos display startPos = do render board (startPos,(8,8))
                                  x <- getch
                                  if elem (toInteger x) navigationKeys
                                  then repeat (newPos startPos (toInteger x))
@@ -101,22 +106,22 @@ getFromPos display startPos = do render board startPos
           pieceAt = getPos startPos board
           repeat = getFromPos display
 
-getToPos :: Display -> Piece -> Pos -> IO Pos
-getToPos display fromPos startPos = do render board startPos
-                                       x <- getch
-                                       if elem (toInteger x) navigationKeys
-                                       then repeat (newPos startPos (toInteger x))
-                                       else if x == returnKey
-                                            then if not (elem (Move fromPos startPos) (moveList display))
-                                                 then repeat startPos
-                                                 else return startPos
-                                            else repeat startPos
+getToPos :: Display -> Piece -> Selection -> IO Pos
+getToPos display fromPos (startPos,selection) = do render board (startPos,selection)
+                                                   x <- getch
+                                                   if elem (toInteger x) navigationKeys
+                                                   then repeat (newPos startPos (toInteger x))
+                                                   else if x == returnKey
+                                                        then if not (elem (Move fromPos startPos) (moveList display))
+                                                             then repeat startPos
+                                                             else return startPos
+                                                        else repeat startPos
     where board = (Display.board display)
-          repeat = getToPos display fromPos
+          repeat = (\m -> getToPos display fromPos (m,selection))
 
 getMove :: Display -> IO Move
 getMove display = do pieceToMove <- getFromPos display (startPos display)
-                     toPos <- getToPos display pieceToMove (position pieceToMove)
+                     toPos <- getToPos display pieceToMove ((position pieceToMove),(position pieceToMove))
                      return (Move pieceToMove toPos)
 
 test = do screen <- initializeDisplay

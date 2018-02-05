@@ -8,8 +8,7 @@ import Piece(Piece(Piece),
              color,
              position,
              pieceType,
-             moveDirs,
-             moveSteps)
+             moveDirs)
 
 type Board = [Piece]
 data Move = Move { targetPiece :: Piece, toPos :: Pos } deriving Eq
@@ -60,7 +59,7 @@ slideOff piece dir = takeWhile onBoard (tail (iterate (\x -> diff x dir) (positi
 stepMoves :: Piece -> Board -> [Move]
 stepMoves piece board = [(Move piece pos) | pos <- validSteps]
     where validSteps = filter (\p -> not (isOccupiedBy p (color piece) board)) possibleSteps
-          possibleSteps = filter onBoard [(diff (position piece) dir) | dir <- moveSteps (pieceType piece)]
+          possibleSteps = filter onBoard [(diff (position piece) dir) | dir <- moveDirs (pieceType piece)]
 
 pawnMoves :: Piece -> Board -> [Move]
 pawnMoves pawn board = [(Move pawn pos) | pos <- forwardMoves pawn board ++ captureMoves pawn board]

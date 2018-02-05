@@ -5,7 +5,6 @@ data Color = Black | White deriving Eq
 data PieceType = King | Queen | Rook | Bishop | Knight | Pawn deriving Eq
 type Pos = (Int, Int)
 type Dir = (Int, Int)
-type Step = (Int, Int)
 
 symbol :: Piece -> Char
 symbol (Piece _ King _) = '♚'
@@ -31,7 +30,5 @@ moveDirs :: PieceType -> [Dir]
 moveDirs Queen = [(-1,-1),(-1,0),(-1,1),(0,1),(0,-1),(1,-1),(1,0),(1,1)]
 moveDirs Rook = [(-1,0),(0,-1),(0,1),(1,0)]
 moveDirs Bishop = [(-1,-1),(-1,1),(1,-1),(1,1)]
-
-moveSteps :: PieceType -> [Step]
-moveSteps King = [(-1,-1),(-1,0),(-1,1),(0,1),(0,-1),(1,-1),(1,0),(1,1)]
-moveSteps Knight = [(-1,-2),(-1,2),(-2,1),(-2,-1),(1,2),(2,1),(1,-2),(2,-1)]
+moveDirs King = [(-1,-1),(-1,0),(-1,1),(0,1),(0,-1),(1,-1),(1,0),(1,1)]
+moveDirs Knight = [(-1,-2),(-1,2),(-2,1),(-2,-1),(1,2),(2,1),(1,-2),(2,-1)]

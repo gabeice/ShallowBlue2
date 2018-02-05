@@ -3,10 +3,12 @@ module Board where
 import Piece(Piece(Piece),
              Color(White,Black),
              PieceType(King,Queen,Rook,Bishop,Knight,Pawn),
+             Pos,
              oppositeColor,
              isSliding,
              color,
-             pieceType)
+             pieceType,
+             position)
 
 import Move(Move,executeMove,move,slideMoves,stepMoves,pawnMoves)
 
@@ -17,6 +19,9 @@ king col board = filter (\p -> (pieceType p == King) && (color p == col)) board
 
 occupiedPieces :: Color -> Board -> [Piece]
 occupiedPieces col board = filter (\p -> color p == col) board
+
+notOccupied :: Pos -> Board -> Bool
+notOccupied pos board = null (filter (\p -> (position p) == pos) board)
 
 isChecked :: Color -> Board -> Bool
 isChecked col board = any (\m -> null (king col m)) (map (\m -> executeMove m board) (allMoves (oppositeColor col) board))

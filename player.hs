@@ -1,8 +1,8 @@
 module Player where
 
-import Piece(Piece(Piece),Color,Pos,position,color)
-import Move(Move(Move),executeMove,toPos,pawnTwoStep)
-import Board(Board,startBoard,validMoves,isMated)
+import Piece(Piece(Piece),Color,PieceType(Rook),Pos,position,pieceType,color)
+import Move(Move(Move),executeMove,toPos,pawnTwoStep,move)
+import Board(Board,startBoard,validMoves,king,isChecked,isMated,notOccupied)
 import Display(Display(Display),getMove)
 
 data Player = Player { playerType :: PlayerType, color :: Color }
@@ -28,7 +28,30 @@ specialMoves :: Color -> Log -> [Move]
 specialMoves col log = (castles col log) ++ (enPassant col log)
 
 castles :: Color -> Log -> [Move]
-castles col log = []
+castles col log = [(Move k p) | p <- twoTowards]
+    where twoTowards = map (\p -> towards 2 kingPos p) rookPositions
+          rookPositions = map position rooks
+          rooks = filter (\p -> (pieceType p) == Rook && (Piece.color p) == col && canCastle k p log) board
+          board = currentBoard log
+          k = head (king col board)
+          kingPos = position k
+
+hasMoved :: Piece -> Log -> Bool
+hasMoved (Piece _ _ pos) log = any (\m -> (toPos m) == pos) log
+
+towards :: Int -> Pos -> Pos -> Pos
+towards n (x,y1) (_,y2) = (x, if y1 < y2 then y1 + n else y1 - n)
+
+canCastle king rook log = unmoved king && unmoved rook && all empty inBetweens && all safe inBetweens
+    where inBetweens = [oneTowards kingPos rookPos, twoTowards kingPos rookPos]
+          kingPos = position king
+          rookPos = position rook
+          empty = (\p -> notOccupied p board)
+          safe = (\p -> not (isChecked (Piece.color king) (move king p board)))
+          board = currentBoard log
+          oneTowards = towards 1
+          twoTowards = towards 2
+          unmoved = (\p -> not (hasMoved p log))
 
 enPassant :: Color -> Log -> [Move]
 enPassant col log = if pawnTwoStep lastMove && (not (null adj))

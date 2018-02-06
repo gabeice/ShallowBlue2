@@ -123,6 +123,8 @@ getToPos display fromPos (startPos,selection) = do render board (startPos,select
           repeat = (\m -> getToPos display fromPos (m,selection))
 
 getMove :: Display -> IO Move
-getMove display = do pieceToMove <- getFromPos display (startPos display)
-                     toPos <- getToPos display pieceToMove ((position pieceToMove),(position pieceToMove))
-                     if toPos == (position pieceToMove) then getMove display else return (Move pieceToMove toPos)
+getMove (Display b p l) = do pieceToMove <- getFromPos (Display b p l) p
+                             toPos <- getToPos (Display b p l) pieceToMove ((position pieceToMove),(position pieceToMove))
+                             if toPos == (position pieceToMove)
+                             then getMove (Display b toPos l)
+                             else return (Move pieceToMove toPos)

@@ -54,6 +54,7 @@ canCastle king rook log = unmoved king && unmoved rook && all empty inBetweens &
           unmoved = (\p -> not (hasMoved p log))
 
 enPassant :: Color -> Log -> [Move]
+enPassant _ [] = []
 enPassant col log = if pawnTwoStep lastMove && (not (null adj))
                     then [(Move (head adj) (intermediary lastMove))]
                     else []

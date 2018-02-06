@@ -19,7 +19,7 @@ play :: Game -> IO ()
 play (Game log pl1 pl2) = do if hasLost color log
                               then return ()
                               else do mv <- getMove cp log
-                                      play' (Game (mv : log) pl1 pl2)
+                                      play (Game (mv : log) pl1 pl2)
     where color = (currentPlayer log)
           cp = if color == White then pl1 else pl2
 

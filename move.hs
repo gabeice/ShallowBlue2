@@ -37,10 +37,18 @@ pawnTwoStep (Move (Piece _ t (a,_)) (b,_)) = t == Pawn && (abs (a - b)) == 2
 move :: Piece -> Pos -> Board -> Board
 move (Piece White Pawn pos) (0,a) board = (Piece White Queen (0,a)) : (filter (/=(Piece White Pawn pos)) board)
 move (Piece Black Pawn pos) (7,a) board = (Piece Black Queen (7,a)) : (filter (/=(Piece Black Pawn pos)) board)
-move (Piece c t (x1,y1)) (x2,y2) board | t == Pawn && (null (getPos (x2,y2) board)) && x1 /= y1 && x2 /= y2 = (Piece c t (x2,y2)) : (filter (\s -> (position s) /= (x1,y1) && (position s) /= (x1,y2)) board)
-                                       | t == King && (abs (y1 - y2)) == 2 = (Piece c t (x2,y2)) : (Piece c Rook (x1,div (y1 + y2) 2)) : (filter (\s -> (position s) /= (x1,y1) && (not (flank y1 y2 (snd (position s)) && (fst (position s)) == x1))) board)
-                                       | otherwise = (Piece c t (x2,y2)) : (filter (\s -> (position s) /= (x1,y1) && (position s) /= (x2,y2)) board)
+move (Piece c t (x1,y1)) (x2,y2) board | t == Pawn && (null (getPos (x2,y2) board)) && x1 /= y1 && x2 /= y2 = replace' newPiece passantCapture board
+                                       | t == King && (abs (y1 - y2)) == 2 = (Piece c Rook (x1,div (y1 + y2) 2)) : replace' newPiece rookCastle board
+                                       | otherwise = replace' newPiece regularCapture board
     where flank x y z = (x < y && y < z) || (x > y && y > z)
+          regularCapture = (\s -> (position s) /= (x2,y2))
+          passantCapture = (\s -> (position s) /= (x1,y2))
+          rookCastle = (\s -> (not (flank y1 y2 (snd (position s)) && (fst (position s)) == x1)))
+          newPiece = (Piece c t (x2,y2))
+          replace' = replace (x1,y1)
+
+replace :: Pos -> Piece -> (Piece -> Bool) -> Board -> Board
+replace fromPos piece filterFunction board = piece : filter (\p -> (position p) /= fromPos) (filter filterFunction board)
 
 isOccupiedBy :: Pos -> Color -> Board -> Bool
 isOccupiedBy pos col board = (not (null occupier)) && (color (head occupier)) == col

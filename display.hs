@@ -115,9 +115,9 @@ getToPos display fromPos (startPos,selection) = do render board (startPos,select
                                                    if elem (toInteger x) navigationKeys
                                                    then repeat (newPos startPos (toInteger x))
                                                    else if x == returnKey
-                                                        then if not (elem (Move fromPos startPos) (moveList display))
-                                                             then repeat startPos
-                                                             else return startPos
+                                                        then if elem (Move fromPos startPos) (moveList display) || startPos == (position fromPos)
+                                                             then return startPos
+                                                             else repeat startPos
                                                         else repeat startPos
     where board = (Display.board display)
           repeat = (\m -> getToPos display fromPos (m,selection))
@@ -125,11 +125,4 @@ getToPos display fromPos (startPos,selection) = do render board (startPos,select
 getMove :: Display -> IO Move
 getMove display = do pieceToMove <- getFromPos display (startPos display)
                      toPos <- getToPos display pieceToMove ((position pieceToMove),(position pieceToMove))
-                     return (Move pieceToMove toPos)
-
-test = do screen <- initializeDisplay
-          mv <- getFromPos (Display startBoard (0,0) []) (0,0)
-          wAddStr screen [symbol mv]
-          refresh
-          threadDelay 1000000
-          clearDisplay screen
+                     if toPos == (position pieceToMove) then getMove display else return (Move pieceToMove toPos)

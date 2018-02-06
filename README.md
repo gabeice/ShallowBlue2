@@ -39,7 +39,7 @@ Board rendering is accomplished via hscurses, a Haskell wrapper around the C ncu
 Sharp-eyed code reviewers may notice a bit of jankiness nestled in the display code:
 
 ```haskell
-                                else wAttrSet win (attr0, (Pair 4))
+                                else setColor w 4
     mvWAddStr win 1 2 ("\b " ++ (symbol : "   "))
     wBorder win (Border ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ')
     wRefresh win

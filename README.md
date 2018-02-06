@@ -36,13 +36,6 @@ prompt (Player Human col) log = getMove (Display board (lastMove log) moves)
 
 Board rendering is accomplished via hscurses, a Haskell wrapper around the C ncurses library. As in any serious functional programming endeavor, the IO bottleneck is kept as tight as possible. All IO functions are bundled in the ```Display``` module which is only ever invoked when prompting a human player for a move.
 
-Sharp-eyed code reviewers may notice a bit of jankiness nestled in the display code:
+### Demo
 
-```haskell
-                                else setColor w 4
-    mvWAddStr win 1 2 ("\b " ++ (symbol : "   "))
-    wBorder win (Border ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ')
-    wRefresh win
-```
-
-Since I can't for the life of me find an hscurses equivalent to the curses ```bkgnd``` method, the best workaround I could devise was to add a whole lot of whitespace to all the windows. It works but it's not ideal, and either I or hscurses need to come up with a saner solution.
+To run the game you need to have GHC and hscurses installed. Once that's taken care of all it takes is ```runHaskell game.hs``` to begin your first dive into the shallows.

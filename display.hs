@@ -49,10 +49,10 @@ clearDisplay w = do keypad w False
                     endWin
 
 initColors :: IO ()
-initColors = do initPair (Pair 1) black (Color 94)
-                initPair (Pair 2) black (Color 101)
-                initPair (Pair 3) white (Color 94)
-                initPair (Pair 4) white (Color 101)
+initColors = do initPair (Pair 1) black (Color 101)
+                initPair (Pair 2) black (Color 94)
+                initPair (Pair 3) white (Color 101)
+                initPair (Pair 4) white (Color 94)
                 initPair (Pair 5) black green
                 initPair (Pair 6) black red
                 initPair (Pair 7) white green

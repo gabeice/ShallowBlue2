@@ -12,7 +12,7 @@ symbol (Piece _ Queen _) = '♛'
 symbol (Piece _ Rook _) = '♜'
 symbol (Piece _ Bishop _) = '♝'
 symbol (Piece _ Knight _) = '♞'
-symbol (Piece _ Pawn _) = '♟'
+symbol (Piece _ Pawn _) = '♙'
 
 oppositeColor :: Color -> Color
 oppositeColor White = Black

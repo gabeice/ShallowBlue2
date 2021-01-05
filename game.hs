@@ -9,8 +9,7 @@ data Game = Game { log :: Log, player1 :: Player, player2 :: Player}
 type Log = [Move]
 
 currentPlayer :: Log -> Color
-currentPlayer log = if even (length log) then White else Black
-    where even = (\n -> n == 0 || mod n 2 == 0)
+currentPlayer log = if mod (length log) 2 == 0 then White else Black
 
 getMove :: Player -> Log -> IO Move
 getMove player log = prompt player log
